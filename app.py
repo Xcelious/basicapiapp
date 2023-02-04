@@ -1,5 +1,6 @@
 import uuid
 from flask import Flask, request
+from flask_smorest import abort
 from db import stores, items
 
 app = Flask(__name__)
@@ -13,17 +14,17 @@ def get_stores() -> list:
 @app.get("/store/<string:store_id>")    #http://127.0.0.1:5000/store/<name>
 def get_store(store_id):
     try:
-        return stores["store_id"]
+        return stores[store_id]
     except KeyError:
-        return {"message": "Store not found"}, 404
+        abort(404, message="Store not found.")
 
 # retrieves items from a specific store
-@app.get("/store/<string:name>/item")   #http://127.0.0.1:5000/store/<name>/item
-def get_item(name):
-    for store in stores:
-        if store["name"] == name:
-            return {"items": store["items"]}
-    return {"message": "Store not found"}, 404
+@app.get("/item/<string:item_id>")   #http://127.0.0.1:5000/store/item
+def get_item(item_id):
+    try:
+        return items[item_id]
+    except KeyError:
+        abort(404, message="Item not found.")
 
 @app.get("/item")      #http://127.0.0.1:5000/store
 def get_all_items() -> list: 
@@ -43,10 +44,10 @@ def create_stores() -> dict:
 def create_item(name):
     item_data = request.get_json()
     if item_data["store_id"] not in stores:
-        return {"message": "Store not found"}, 404
+        abort(404, message="Store not found.")
 
     item_id = uuid.uuid4.hex
     item = {**item_data, "id": item_id}
 
     items[item_id] = item
-    return item
+    return item, 201
