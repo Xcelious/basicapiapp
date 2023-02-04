@@ -35,9 +35,13 @@ def create_stores() -> dict:
     
     return store, 201
 
-@app.post("/store/<string:name>/item")
+@app.post("/item")
 def create_item(name):
-    request_data = request.get_json()
+    item_data = request.get_json()
+    if item_data["store_id"] not in stores:
+        return {"message": "Store not found"}, 404
+
+    
     for store in stores:
         if store["name"] == name:
             new_item = {"name": request_data["name"], "price": request_data["price"]}
