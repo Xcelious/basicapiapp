@@ -1,4 +1,5 @@
 from flask import Flask, request
+from db import stores, items
 
 app = Flask(__name__)
 
